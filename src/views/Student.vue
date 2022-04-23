@@ -1,10 +1,13 @@
 <script setup>
 import { useAuthStore } from "../stores/auth";
+import AppBar from "../components/AppBar.vue";
 
 const auth = useAuthStore();
 </script>
 
 <template>
-  Student
-  <button @click="() => auth.logout()">log out</button>
+  <app-bar />
+  <main>
+    Student
+  </main>
 </template>
