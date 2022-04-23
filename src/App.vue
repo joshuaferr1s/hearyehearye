@@ -6,7 +6,7 @@ import AppFooter from "./components/AppFooter.vue";
 <template>
   <div class="min-h-screen flex flex-col">
     <app-bar />
-    <div class="flex-1">
+    <div class="flex flex-1 items-stretch">
       <router-view></router-view>
     </div>
     <app-footer />

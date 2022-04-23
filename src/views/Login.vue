@@ -9,7 +9,7 @@ const password = ref(null);
 </script>
 
 <template>
-  <main class="min-h-full w-screen flex flex-col items-center justify-center bg-gray-100 py-6">
+  <main class="w-screen flex flex-col items-center justify-center">
     <div class="flex flex-col bg-white shadow-md mx-2 sm:mx-0 px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-3xl w-50 max-w-sm">
 
       <button @click="() => auth.loginG()" :disabled="auth.authenticating" class="flex items-center justify-center focus:outline-none text-white text-sm sm:text-base rounded-2xl py-2 w-full transition duration-150 ease-in" :class="auth.authenticating ? 'bg-gray-500 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'">

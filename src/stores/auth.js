@@ -3,7 +3,7 @@ import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
   GoogleAuthProvider, signInWithPopup
 } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { useToast } from "vue-toastification";
 import { firebaseApp } from "../firebase";
 import router from "../router";
@@ -20,8 +20,11 @@ export const useAuthStore = defineStore({
   id: "auth",
   state: () => ({
     authenticating: false,
+    loading: false,
     user: null,
     unauthorized: false,
+    team: null,
+    feedback: [],
   }),
   actions: {
     initializeAuthListener() {
@@ -35,6 +38,7 @@ export const useAuthStore = defineStore({
               this.user = {
                 email: user.email,
                 type: data.type,
+                team: data.team,
               };
               if (data.type == "student") {
                 router.push({ name: "Student" });
@@ -57,6 +61,29 @@ export const useAuthStore = defineStore({
           resolve(true);
         });
       });
+    },
+    async getTeamFeedback(team) {
+      console.log("Fetching team feedback action.");
+
+      try {
+        this.loading = true;
+        this.feedback = [];
+
+        // Get team information
+        const docRef = doc(db, "teams", team);
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+          this.team = docSnap.data();
+          // Get Feedback if there is any
+          const subColRef = collection(db, "teams", team, "feedback");
+          const qSnap = await getDocs(subColRef)
+          this.feedback = qSnap.docs.map(d => ({ judge: d.id, ...d.data() }));
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
     },
     async loginEP(email, password) {
       console.log("Log in with Email action.");
