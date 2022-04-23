@@ -4,6 +4,7 @@ import {
   GoogleAuthProvider, signInWithPopup
 } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { useToast } from "vue-toastification";
 import { firebaseApp } from "../firebase";
 import router from "../router";
 
@@ -13,6 +14,7 @@ const provider = new GoogleAuthProvider();
 provider.setCustomParameters({
   prompt: "select_account",
 });
+const toast = useToast();
 
 export const useAuthStore = defineStore({
   id: "auth",
@@ -63,12 +65,15 @@ export const useAuthStore = defineStore({
         this.authenticating = true;
         this.unauthorized = false;
 
-        const { user } = signInWithEmailAndPassword(auth, email, password);
-        // get status from firestore (team, judge, or instructor)
-        // set user state
+        await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
-        console.log("Log in with Email action encountered an error.");
-        console.log(error);
+        if (error.code == "auth/wrong-password" || error.code == "auth/user-not-found") {
+          toast.error("Incorrect email and or password. Please try again.");
+        } else {
+          toast.error("Error logging you in. Please try again shortly.");
+          console.log("Log in with Email action encountered an error.");
+          console.log(error);
+        }
       } finally {
         this.authenticating = false;
       }
@@ -79,10 +84,13 @@ export const useAuthStore = defineStore({
         this.authenticating = true;
         this.unauthorized = false;
 
-        const { user } = await signInWithPopup(auth, provider);
+        await signInWithPopup(auth, provider);
       } catch (error) {
-        console.log("Log in with Google action encountered an error.");
-        console.log(error);
+        if (error.code != "auth/popup-closed-by-user") {
+          toast.error("Error logging you in. Please try again shortly.");
+          console.log("Log in with Google action encountered an error.");
+          console.log(error);
+        }
       } finally {
         this.authenticating = false;
       }
@@ -96,6 +104,7 @@ export const useAuthStore = defineStore({
         await signOut(auth);
         router.push({ name: "Login" });
       } catch (error) {
+        toast.error("Error logging you out. Please try again shortly.");
         console.log("Log out action encountered an error.");
         console.log(error);
       } finally {
