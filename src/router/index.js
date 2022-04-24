@@ -21,6 +21,14 @@ const router = createRouter({
       },
     },
     {
+      path: "/judge",
+      name: "Judge",
+      component: () => import("../views/Judge.vue"),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
       path: "/unauthorized",
       name: "Unauthorized",
       component: () => import("../views/Unauthorized.vue"),
@@ -36,16 +44,16 @@ router.beforeEach((to, _) => {
 
   if (to.meta.requiresAuth && !auth.user) {
     return { name: "Login" };
-  } else if (!to.meta.requiresAuth && auth.user) {
-    if (auth.user.type == "student") {
+  } else if (to.meta.requiresAuth && to.name != "Unauthorized" && auth.unauthorized) {
+    return { name: "Unauthorized" };
+  } else if (auth.user) {
+    if (auth.user.type == "student" && to.name != "Student") {
       return { name: "Student" };
-    } else if (auth.user.type == "instructor") {
+    } else if (auth.user.type == "instructor" && to.name != "Instructor") {
       return { name: "Instructor" };
-    } else {
+    } else if (auth.user.type == "judge" && to.name != "Judge") {
       return { name: "Judge" };
     }
-  } else if (to.requiresAuth && to.name != "Unauthorized" && auth.unauthorized) {
-    return { name: "Unauthorized" };
   }
 });
 
