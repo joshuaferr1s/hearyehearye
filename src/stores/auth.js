@@ -3,7 +3,7 @@ import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
   GoogleAuthProvider, signInWithPopup
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { getFirestore, doc, getDoc, collection, getDocs, setDoc, updateDoc } from "firebase/firestore";
 import { useToast } from "vue-toastification";
 import { firebaseApp } from "../firebase";
 import router from "../router";
@@ -24,6 +24,8 @@ export const useAuthStore = defineStore({
     user: null,
     unauthorized: false,
     team: null,
+    feedbackID: null,
+    judging: null,
     feedback: [],
   }),
   actions: {
@@ -39,6 +41,7 @@ export const useAuthStore = defineStore({
                 email: user.email,
                 type: data.type,
                 team: data.team,
+                name: data.name,
               };
               if (data.type == "student") {
                 router.push({ name: "Student" });
@@ -61,6 +64,78 @@ export const useAuthStore = defineStore({
           resolve(true);
         });
       });
+    },
+    clearJudgingTeam() {
+      this.team = "";
+      this.feedbackID = null;
+      this.judging = null;
+    },
+    async submitTeamFeedback() {
+      console.log("Submit team feedback action.");
+
+      try {
+        this.loading = true;
+
+        if (!this.feedbackID) {
+          // Create new document for feedback
+          await setDoc(doc(db, "teams", this.team.team, "feedback", this.user.name), this.judging);
+        } else {
+          // Update existing document with values
+          await updateDoc(doc(db, "teams", this.team.team, "feedback", this.user.name), this.judging);
+        }
+        toast.success(`Successfully submitted feedback for team ${this.team.team}`);
+        this.clearJudgingTeam();
+      } catch (error) {
+        toast.error("Error submitting team feedback. Please try again shortly.");
+        console.log("Submit team feedback action encountered an error.");
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async selectTeam(team) {
+      console.log("Selecting team action.");
+
+      try {
+        this.loading = true;
+        this.team = "";
+        this.feedbackID = null;
+        this.judging = null;
+
+        const teamRef = doc(db, "teams", team);
+        const teamSnap = await getDoc(teamRef)
+        if (teamSnap.exists()) {
+          this.team = {
+            team,
+            ...teamSnap.data()
+          };
+          // Get current judge's feedback
+          const fbRef = doc(db, "teams", team, "feedback", this.user.name);
+          const fbSnap = await getDoc(fbRef);
+
+          if (fbSnap.exists()) {
+            this.feedbackID = fbSnap.id;
+            this.judging = fbSnap.data();
+          } else {
+            this.feedbackID = null;
+            this.judging = {
+              q1: null,
+              q2: null,
+              q3: null,
+              q4: null,
+              comments: "",
+            };
+          }
+        } else {
+          toast.error(`Team ${team} does not exist in the databse.`);
+        }
+      } catch (error) {
+        toast.error("Error retrieving team information. Please try again shortly.");
+        console.log("Selecting team action encountered an error.");
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
     },
     async getTeamFeedback(team) {
       console.log("Fetching team feedback action.");
