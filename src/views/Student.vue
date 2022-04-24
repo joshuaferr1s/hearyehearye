@@ -53,7 +53,7 @@ onMounted(async () => {
       <hr class="my-2">
       <h2 class="text-xl mb-2">Comments</h2>
       <div v-for="fb in auth.feedback" class="mb-4">
-        <blockquote class="relative p-4 text-lg italic border-l-4 bg-neutral-100 text-neutral-600 border-neutral-500 quote">
+        <blockquote v-if="fb.comments != ''" class="relative p-4 text-lg italic border-l-4 bg-neutral-100 text-neutral-600 border-neutral-500 quote">
           <p className="mb-4">"{{ fb.comments }}"</p>
           <cite className="flex items-center">
             <div className="flex flex-col items-start">
