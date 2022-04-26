@@ -31,19 +31,19 @@ onMounted(async () => {
       </thead>
       <tbody>
         <tr class="border-b">
-          <td class="font-medium border-r py-1 px-2">Question 1</td>
+          <td class="font-medium border-r py-1 px-2">Addressed the challenge</td>
           <td class="text-center" v-for="fb in auth.feedback">{{ fb.q1 }}</td>
         </tr>
         <tr class="border-b">
-          <td class="font-medium border-r py-1 px-2">Question 2</td>
+          <td class="font-medium border-r py-1 px-2">Developed a Compelling Argument</td>
           <td class="text-center" v-for="fb in auth.feedback">{{ fb.q2 }}</td>
         </tr>
         <tr class="border-b">
-          <td class="font-medium border-r py-1 px-2">Question 3</td>
+          <td class="font-medium border-r py-1 px-2">Delivered a Professional Presentation</td>
           <td class="text-center" v-for="fb in auth.feedback">{{ fb.q3 }}</td>
         </tr>
         <tr>
-          <td class="font-medium border-r py-1 px-2">Question 4</td>
+          <td class="font-medium border-r py-1 px-2">Compelling Solution / Idea</td>
           <td class="text-center" v-for="fb in auth.feedback">{{ fb.q4 }}</td>
         </tr>
       </tbody>
