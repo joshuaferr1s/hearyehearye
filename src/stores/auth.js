@@ -93,6 +93,10 @@ export const useAuthStore = defineStore({
         this.loading = false;
       }
     },
+    resetSelection() {
+      this.team = null;
+      this.feedback = [];
+    },
     async selectTeam(team) {
       console.log("Selecting team action.");
 
