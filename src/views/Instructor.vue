@@ -45,7 +45,7 @@ const teams = [
       </form>
     </div>
   </main>
-  <main v-else-if="auth.feedback" class="w-screen flex flex-col items-center justify-center px-2">
+  <main v-else-if="auth.feedback && auth.feedback.length != 0" class="w-screen flex flex-col items-center justify-center px-2">
     <div class="text-center mb-4">
       <h1 class="text-md font-medium">Team: {{ selTeam }}</h1>
       <p class="text-xs">{{ auth.team.members.join(", ") }}</p>
@@ -95,9 +95,9 @@ const teams = [
       Select Another Team
     </button>
   </main>
-  <main v-else class="w-screen flex flex-col items-center justify-center">
-    <h1 class="text-3xl">👀 Nothing here yet for team {{ auth.user.team }}</h1>
-    <button @click="() => auth.resetSelection()" :disabled="auth.loading" class="flex items-center justify-center focus:outline-none text-white text-sm sm:text-base rounded-2xl py-2 w-full transition duration-150 ease-in uppercase" :class="auth.loading ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'">
+  <main v-else-if="!auth.loading" class="w-screen flex flex-col items-center justify-center">
+    <h1 class="text-3xl mb-6">👀 Nothing here yet for team {{ selTeam }}</h1>
+    <button @click="() => auth.resetSelection()" :disabled="auth.loading" class="flex items-center justify-center focus:outline-none text-white text-sm sm:text-base rounded-2xl py-2 w-full max-w-sm transition duration-150 ease-in uppercase" :class="auth.loading ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'">
       Select Another Team
     </button>
   </main>
