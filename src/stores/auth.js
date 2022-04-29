@@ -16,6 +16,25 @@ provider.setCustomParameters({
 });
 const toast = useToast();
 
+const asyncForEach = async (arr, cb) => {
+  for (let index = 0; index < arr.length; index++) {
+    await cb(arr[index], index, arr);
+  }
+};
+const TEAMS = [
+  "A1", "A2", "A3", "A4", "A5", "A7", "A8", "A9", "A10", "A11",
+  "B1", "B2", "B3", "B4", "B5", "B7", "B8", "B9", "B10", "B11",
+  "C1", "C2", "C3", "C4", "C5", "C7", "C8", "C9", "C10", "C11",
+  "D1", "D2", "D3", "D4", "D5", "D7", "D8", "D9", "D10", "D11",
+  "E1", "E2", "E3", "E4", "E5", "E7", "E8", "E9", "E10", "E11",
+  "F1", "F2", "F3", "F4", "F5", "F7", "F8", "F9", "F10", "F11",
+  "G1", "G2", "G3", "G4", "G5", "G7", "G8", "G9", "G10", "G11",
+  "H1", "H2", "H3", "H4", "H5", "H7", "H8", "H9", "H10", "H11",
+  "I1", "I2", "I3", "I4", "I5", "I7", "I8", "I9", "I10", "I11",
+  "J1", "J2", "J3", "J4", "J5", "J7", "J8", "J9", "J10", "J11",
+  "K1", "K2", "K3", "K4", "K5", "K7", "K8", "K9", "K10", "K11",
+];
+
 export const useAuthStore = defineStore({
   id: "auth",
   state: () => ({
@@ -69,6 +88,38 @@ export const useAuthStore = defineStore({
       this.team = "";
       this.feedbackID = null;
       this.judging = null;
+    },
+    async exportToCSV() {
+      console.log("Export to CSV action.");
+
+      try {
+        this.loading = true;
+        toast.info("The export process could take up to a few minutes. Please do not refresh the page.");
+        let csv = "Team,Judge Name,Q1,Q2,Q3,Q4,Comments\n";
+
+        await asyncForEach(TEAMS, async (t) => {
+          const tSnap = await getDocs(collection(db, "teams", t, "feedback"));
+          tSnap.forEach(doc => {
+            const data = doc.data();
+            const toExport = [t, doc.id, data.q1, data.q2, data.q3, data.q4, data.comments]
+            csv += toExport.join(",");
+            csv += "\n";
+          });
+        });
+
+        const anchor = document.createElement("a");
+        anchor.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+        anchor.target = "_blank";
+        anchor.download = "client_challenge_judge_feedback.csv";
+        anchor.click();
+        
+      } catch (error) {
+        toast.error("Error downloading results. Please try again shortly.");
+        console.log("Export to CSV action encountered an error.");
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
     },
     async submitTeamFeedback() {
       console.log("Submit team feedback action.");
