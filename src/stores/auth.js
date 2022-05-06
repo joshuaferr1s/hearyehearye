@@ -95,14 +95,14 @@ export const useAuthStore = defineStore({
       try {
         this.loading = true;
         toast.info("The export process could take up to a few minutes. Please do not refresh the page.");
-        let csv = "Team,Judge Name,Q1,Q2,Q3,Q4,Comments\n";
+        let csv = "Team\tJudge Name\tQ1\tQ2\tQ3\tQ4\tComments\n";
 
         await asyncForEach(TEAMS, async (t) => {
           const tSnap = await getDocs(collection(db, "teams", t, "feedback"));
           tSnap.forEach(doc => {
             const data = doc.data();
-            const toExport = [t, doc.id, data.q1, data.q2, data.q3, data.q4, data.comments]
-            csv += toExport.join(",");
+            const toExport = [t, doc.id, data.q1, data.q2, data.q3, data.q4, data.comments.replaceAll("\n", "")]
+            csv += toExport.join("\t");
             csv += "\n";
           });
         });
